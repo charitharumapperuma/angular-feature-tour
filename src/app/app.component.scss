@@ -34,11 +34,6 @@ header {
       }
     }
   }
-
-  button.get-started {
-    background: forestgreen;
-    color: white;
-  }
 }
 
 div.content {
@@ -46,6 +41,11 @@ div.content {
   max-width: 1200px;
   margin: 80px auto 50px; // leave space for header and footer
   box-sizing: border-box;
+
+  &.full-width {
+    max-width: unset;
+    padding: 0;
+  }
 }
 
 footer {

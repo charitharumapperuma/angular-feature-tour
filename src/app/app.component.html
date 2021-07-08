@@ -6,10 +6,10 @@
     <a [routerLink]="['about']" routerLinkActive="active">About</a>
   </nav>
 
-  <button>Get Started</button>
+  <button class="primary">Get Started</button>
 </header>
 
-<div class="content">
+<div class="content" [class.full-width]="isActive([''])">
   <router-outlet></router-outlet>
 </div>
 

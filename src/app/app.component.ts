@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,11 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'angular-feature-tour';
+
+  constructor(private router: Router) {
+  }
+
+  public isActive(instruction: any[]): boolean {
+    return this.router.isActive(this.router.createUrlTree(instruction), true);
+  }
 }

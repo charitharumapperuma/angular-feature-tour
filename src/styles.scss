@@ -26,4 +26,9 @@ button {
   &:active {
     opacity: 80%;
   }
+
+  &.primary {
+    background: forestgreen;
+    color: white;
+  }
 }
