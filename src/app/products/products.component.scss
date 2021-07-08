@@ -1,11 +1,13 @@
 :host {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
 }
 
 app-spinner {
   margin-top: 120px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .product-card {
