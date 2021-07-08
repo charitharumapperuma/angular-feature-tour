@@ -1,26 +1,32 @@
-<div class="product-card" *ngFor="let product of products$ | async">
-  <div class="card">
-    <div class="img">
-      <img [src]="product.image" [alt]="product.title">
-    </div>
-
-    <div class="title">
-      {{product.title}}
-    </div>
-
-    <div class="description">
-      {{product.description}}
-    </div>
-
-    <div class="spacer"></div>
-
-    <div class="card-footer">
-      <div>
-        {{product.price|currency:'USD'}}
+<ng-container *ngIf="(products$ | async) as products; else loader">
+  <div class="product-card" *ngFor="let product of products">
+    <div class="card">
+      <div class="img placeholder" #img>
+        <img [src]="product.image" [alt]="product.title" (load)="img.classList.remove('placeholder')">
       </div>
+
+      <div class="title">
+        {{product.title}}
+      </div>
+
+      <div class="description">
+        {{product.description}}
+      </div>
+
       <div class="spacer"></div>
-      <button>Buy Now</button>
+
+      <div class="card-footer">
+        <div class="price">
+          {{product.price|currency:'USD'}}
+        </div>
+
+        <div class="spacer"></div>
+        <button>Buy Now</button>
+      </div>
     </div>
   </div>
+</ng-container>
 
-</div>
+<ng-template #loader>
+  <app-spinner></app-spinner>
+</ng-template>

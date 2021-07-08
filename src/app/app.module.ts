@@ -6,19 +6,19 @@ import { AppComponent } from './app.component';
 import {HttpClientModule} from '@angular/common/http';
 import { HeaderComponent } from './shared/header/header.component';
 import { FooterComponent } from './shared/footer/footer.component';
+import { SpinnerComponent } from './shared/spinner/spinner.component';
+import {SharedModule} from './shared/shared.module';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HeaderComponent,
-    FooterComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
-    AppRoutingModule
+    AppRoutingModule,
+    SharedModule
   ],
-  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
