@@ -1,18 +1,7 @@
-<header>
-  <h1 [routerLink]="['']">Header</h1>
-  <nav>
-    <a [routerLink]="['']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
-    <a [routerLink]="['products']" routerLinkActive="active">Products</a>
-    <a [routerLink]="['about']" routerLinkActive="active">About</a>
-  </nav>
-
-  <button class="primary">Get Started</button>
-</header>
+<app-header></app-header>
 
 <div class="content" [class.full-width]="isActive([''])">
   <router-outlet></router-outlet>
 </div>
 
-<footer>
-  Footer
-</footer>
+<app-footer></app-footer>
