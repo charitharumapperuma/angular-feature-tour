@@ -7,8 +7,6 @@ import {Router} from '@angular/router';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'angular-feature-tour';
-
   constructor(private router: Router) {
   }
 
