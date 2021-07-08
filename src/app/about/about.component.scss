@@ -1,0 +1,25 @@
+.section {
+  display: flex;
+  margin: 16px 0;
+
+  &.actions {
+    align-items: center;
+    justify-content: center;
+    margin: 32px 0;
+
+    p {
+      color: #888888;
+      margin: 0 8px;
+    }
+  }
+
+  p {
+    margin: 0;
+    text-align: justify;
+  }
+
+  button.get-started {
+    background: forestgreen;
+    color: white;
+  }
+}
