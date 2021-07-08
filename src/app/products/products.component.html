@@ -1,1 +1,26 @@
-<p>products works!</p>
+<div class="product-card" *ngFor="let product of products$ | async">
+  <div class="card">
+    <div class="img">
+      <img [src]="product.image" [alt]="product.title">
+    </div>
+
+    <div class="title">
+      {{product.title}}
+    </div>
+
+    <div class="description">
+      {{product.description}}
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="card-footer">
+      <div>
+        {{product.price|currency:'USD'}}
+      </div>
+      <div class="spacer"></div>
+      <button>Buy Now</button>
+    </div>
+  </div>
+
+</div>
