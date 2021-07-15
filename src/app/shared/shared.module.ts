@@ -4,6 +4,7 @@ import {HeaderComponent} from './header/header.component';
 import {FooterComponent} from './footer/footer.component';
 import {SpinnerComponent} from './spinner/spinner.component';
 import {RouterModule} from '@angular/router';
+import {TourModule} from '../lib/tour/tour.module';
 
 
 
@@ -15,7 +16,8 @@ import {RouterModule} from '@angular/router';
   ],
   imports: [
     CommonModule,
-    RouterModule
+    RouterModule,
+    TourModule
   ],
   exports: [
     HeaderComponent,

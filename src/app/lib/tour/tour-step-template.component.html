@@ -1,0 +1,40 @@
+<div
+  *ngIf="isReady && isActive"
+  [popover]="tourPopover"
+  [popoverContext]="context"
+  [containerClass]="'tour-popover'"
+  [placement]="'auto'"
+  [isOpen]="isActive"
+  class="wrapper">
+</div>
+
+<ng-template #tourPopover let-step="step">
+  <div class="tour-step--title" *ngIf="step?.title">
+    {{step?.title}}
+  </div>
+
+  <div class="tour-step--message">
+    {{step?.message}}
+  </div>
+
+  <div class="tour-step--navigation" *ngIf="!tour.isSequence">
+    <button class="link" (click)="tourService.prev()">
+      Check
+    </button>
+    <button class="fill" (click)="tourService.end()">
+      Got it
+    </button>
+  </div>
+
+  <div class="tour-step--navigation" *ngIf="tour.isSequence">
+    <button class="fill" (click)="tourService.prev()">
+      Back
+    </button>
+    <button class="fill" *ngIf="isLast" (click)="tourService.next()">
+      Next
+    </button>
+    <button class="fill" (click)="tourService.end()">
+      Done
+    </button>
+  </div>
+</ng-template>

@@ -6,43 +6,7 @@ import {Tour, TourStep} from './tour.model';
 
 @Component({
   selector: 'tour-step-template',
-  template: `
-    <div
-      *ngIf="isReady && isActive"
-      [popover]="tourPopover"
-      [popoverContext]="context"
-      [containerClass]="'tour-popover'"
-      [placement]="'auto'"
-      [isOpen]="isActive"
-      class="wrapper">
-    </div>
-
-    <ng-template #tourPopover let-step="step">
-      <p class="tour-step-title">
-        {{step?.message}}
-      </p>
-
-      <div class="tour-step-navigation" *ngIf="!step.isSequential">
-        <button class="link" (click)="tourService.prev()">
-          Check
-        </button>
-        <button class="fill" (click)="tourService.end()">
-          Got it
-        </button>
-      </div>
-      <div class="tour-step-navigation" *ngIf="step.isSequential">
-        <button class="fill" (click)="tourService.prev()">
-          Back
-        </button>
-        <button class="fill" *ngIf="isLast" (click)="tourService.next()">
-          Next
-        </button>
-        <button class="fill" (click)="tourService.end()">
-          Done
-        </button>
-      </div>
-    </ng-template>
-  `,
+  templateUrl: './tour-step-template.component.html',
   styleUrls: [
     './tour-step-template.component.less'
   ]
