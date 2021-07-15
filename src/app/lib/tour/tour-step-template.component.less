@@ -1,0 +1,84 @@
+:host {
+  display: block;
+  position: absolute;
+
+  .wrapper {
+    width: calc(100% + 24px);
+    height: calc(100% + 24px);
+    margin: -12px;
+    border: 8px solid rgba(111, 60, 230, 0.24);
+    border-radius: 8px;
+    z-index: 1000;
+
+    &:before {
+      content: " ";
+      position: absolute;
+      top: -6px;
+      left: -6px;
+      right: -6px;
+      bottom: -6px;
+      border: 2px solid #8E30CA;
+      border-radius: 8px;
+    }
+  }
+}
+
+::ng-deep {
+  .tour-popover {
+    box-sizing: border-box;
+    width: 282px;
+    border: 1px solid #6F3CE6;
+    border-radius: 4px;
+    background-color: #FFFFFF;
+    box-shadow: 0 4px 12px 0 rgba(22, 39, 54, 0.12), 0 1px 6px 1px rgba(22, 39, 54, 0.04), 0 2px 24px 0 rgba(22, 39, 54, 0.08);
+
+    .popover-content.popover-body {
+      padding: 12px 16px;
+
+      .tour-step-title {
+        color: #162736;
+        font-family: canada-type-gibson, sans-serif;
+        font-size: 14px;
+        letter-spacing: 0;
+        line-height: 20px;
+      }
+
+      .tour-step-navigation {
+        display: flex;
+        justify-content: flex-end;
+
+        button {
+          height: 32px;
+          padding: 6px 24px;
+          font-family: canada-type-gibson, sans-serif;
+          font-size: 14px;
+          font-weight: 600;
+          letter-spacing: 0;
+          line-height: 20px;
+          text-align: center;
+
+          &.fill {
+            color: #FFFFFF;
+            background-color: #FF6E00;
+          }
+
+          &.link {
+            color: #FF6E00;
+            background-color: transparent;
+          }
+
+          &:focus {
+            outline: none;
+          }
+        }
+      }
+    }
+
+    .popover-arrow.arrow {
+      &:before {
+        border-top-color: #6F3CE6;
+        border-bottom-color: #6F3CE6;
+      }
+    }
+  }
+}

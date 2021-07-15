@@ -1,5 +1,6 @@
 export class Tour {
   id: string;
+  isSequential: boolean;
   steps: TourStep[];
 }
 

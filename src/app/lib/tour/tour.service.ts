@@ -1,8 +1,7 @@
-import {Injectable, TemplateRef} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {Tour, TourStep} from './tour.model';
 import {TourStepDirective} from './tour-step.directive';
-import {BehaviorSubject, combineLatest, concat, merge, Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +10,8 @@ export class TourService {
   private tourSubj: BehaviorSubject<Tour> = new BehaviorSubject<Tour>(null);
   private anchorsSubj: BehaviorSubject<Map<string, TourStepDirective>> = new BehaviorSubject(new Map<string, TourStepDirective>());
   private currentStepSubj: BehaviorSubject<TourStep> = new BehaviorSubject<TourStep>(null);
+  public stepsMap: Map<string, TourStep> = new Map<string, TourStep>();
 
-  public template: TemplateRef<any>;
   public tour$: Observable<Tour> = this.tourSubj.asObservable();
   public anchors$: Observable<Map<string, TourStepDirective>> = this.anchorsSubj.asObservable();
   public currentStep$: Observable<TourStep> = this.currentStepSubj.asObservable();
@@ -23,7 +22,7 @@ export class TourService {
   ]);
 
   constructor() {
-    this.events$.subscribe((e) => {
+    this.events$.subscribe(() => {
       if (!this.currentStepSubj.value) {
         return;
       }
@@ -36,10 +35,14 @@ export class TourService {
   }
 
   public initialize(tour: Tour) {
-    tour.steps.forEach((step, index) => ({
-      ...step,
-      index
-    }));
+    this.stepsMap.clear();
+    tour.steps.forEach((step, index) => {
+      this.stepsMap.set(step.id, step);
+      return {
+        ...step,
+        index
+      };
+    });
     this.tourSubj.next(Object.assign({}, tour));
   }
 
@@ -88,6 +91,10 @@ export class TourService {
 
   public end() {
     console.error('Not implemented');
+  }
+
+  public getStep(id): TourStep {
+    return this.stepsMap.get(id);
   }
 
   private setStep(index) {
