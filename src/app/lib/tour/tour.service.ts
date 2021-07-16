@@ -30,7 +30,7 @@ export class TourService {
       if (!anchor) {
         return;
       }
-      anchor.show(this.currentStepSubj.value);
+      setTimeout(() => anchor.show());
     });
   }
 

@@ -19,7 +19,7 @@ export class TourStepTemplateComponent implements OnInit, OnDestroy {
   public isReady = false;
   public isActive = false;
   public isLast = false;
-  @HostBinding('class') hostClass = 'tour-step-area';
+  @HostBinding('class.tour-step-area') true;
   @HostBinding('style.width.px') public width = 0;
   @HostBinding('style.height.px') public height = 0;
   @HostBinding('style.top.px') public offsetVertical: number;
