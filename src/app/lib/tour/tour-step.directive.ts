@@ -8,7 +8,6 @@ import {
   ViewContainerRef
 } from '@angular/core';
 import {TourService} from './tour.service';
-import {TourStep} from './tour.model';
 import {TourStepTemplateComponent} from './tour-step-template.component';
 
 @Directive({
@@ -16,6 +15,7 @@ import {TourStepTemplateComponent} from './tour-step-template.component';
 })
 export class TourStepDirective implements OnInit, OnDestroy {
   @Input() tourStep: string;
+  @Input() data: any;
 
   public element: HTMLElement;
 
@@ -40,5 +40,6 @@ export class TourStepDirective implements OnInit, OnDestroy {
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(TourStepTemplateComponent);
     const componentRef = this.vcRef.createComponent<TourStepTemplateComponent>(componentFactory);
     componentRef.instance.setStep(this.tourStep);
+    componentRef.instance.data = this.data;
   }
 }

@@ -14,6 +14,7 @@ import {Tour, TourStep} from './tour.model';
 export class TourStepTemplateComponent implements OnInit, OnDestroy {
   public tour: Tour;
   public step: TourStep;
+  public data: any;
   public context: any;
   public targetElement: HTMLElement;
   public isReady = false;
@@ -42,22 +43,11 @@ export class TourStepTemplateComponent implements OnInit, OnDestroy {
       this.tourService.anchors$,
       this.tourService.currentStep$
     ]).subscribe(([stepId, resize, tour, anchors, currentStep]) => {
-      if (tour && anchors && currentStep) {
-        this.step = this.tourService.getStep(stepId);
-        if (this.step) {
-          this.tour = tour;
-          this.context = {step: this.step};
-          this.isActive = this.step.id === currentStep.id;
-          this.isLast = this.step.index === this.tour.steps.length - 1;
-          this.targetElement = anchors.get(this.step.id).element;
-
-          const boundingRect: DOMRect = this.targetElement.getBoundingClientRect() as DOMRect;
-          this.width = boundingRect.width;
-          this.height = boundingRect.height;
-          this.offsetVertical = boundingRect.top + document.scrollingElement.scrollTop;
-          this.offsetHorizontal = boundingRect.left + document.scrollingElement.scrollLeft;
-
-          this.isReady = true;
+      if (tour && anchors) {
+        if (currentStep) {
+          this.setup(stepId, tour, anchors, currentStep);
+        } else {
+          this.isActive = false;
         }
       }
     });
@@ -77,5 +67,27 @@ export class TourStepTemplateComponent implements OnInit, OnDestroy {
     return merge(resize$, scroll$).pipe(
       debounce(() => interval(10))
     );
+  }
+
+  private setup(stepId, tour, anchors, currentStep): void {
+    this.step = this.tourService.getStep(stepId);
+    if (this.step) {
+      this.tour = tour;
+      this.context = {
+        step: this.step,
+        data: this.data
+      };
+      this.isActive = this.step.id === currentStep.id;
+      this.isLast = this.step.index === this.tour.steps.length - 1;
+      this.targetElement = anchors.get(this.step.id).element;
+
+      const boundingRect: DOMRect = this.targetElement.getBoundingClientRect() as DOMRect;
+      this.width = boundingRect.width;
+      this.height = boundingRect.height;
+      this.offsetVertical = boundingRect.top + document.scrollingElement.scrollTop;
+      this.offsetHorizontal = boundingRect.left + document.scrollingElement.scrollLeft;
+
+      this.isReady = true;
+    }
   }
 }

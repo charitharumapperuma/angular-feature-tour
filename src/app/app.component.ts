@@ -14,6 +14,9 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.tourService.initialize(TOUR_CONFIG);
+    this.tourService.action$.subscribe((action) => {
+      console.log(action);
+    });
   }
 
   ngAfterViewInit() {

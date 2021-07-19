@@ -8,7 +8,7 @@
   class="wrapper">
 </div>
 
-<ng-template #tourPopover let-step="step">
+<ng-template #tourPopover let-step="step" let-data="data">
   <div class="tour-step--title" *ngIf="step?.title">
     {{step?.title}}
   </div>
@@ -18,22 +18,22 @@
   </div>
 
   <div class="tour-step--navigation" *ngIf="!tour.isSequence">
-    <button class="link" (click)="tourService.prev()">
+    <button class="link" (click)="tourService.trigger('check', step, data)">
       Check
     </button>
-    <button class="fill" (click)="tourService.end()">
+    <button class="fill" (click)="tourService.trigger('got_it', step, data)">
       Got it
     </button>
   </div>
 
   <div class="tour-step--navigation" *ngIf="tour.isSequence">
-    <button class="fill" (click)="tourService.prev()">
+    <button class="fill" (click)="tourService.trigger('prev', step, data)">
       Back
     </button>
-    <button class="fill" *ngIf="isLast" (click)="tourService.next()">
+    <button class="fill" *ngIf="isLast" (click)="tourService.trigger('next', step, data)">
       Next
     </button>
-    <button class="fill" (click)="tourService.end()">
+    <button class="fill" (click)="tourService.trigger('end', step, data)">
       Done
     </button>
   </div>

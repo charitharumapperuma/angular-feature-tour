@@ -9,12 +9,19 @@ export class TourStep {
   index?: number;
   title?: string;
   message?: string;
-  actions: Action[];
-  enabled: boolean;
+  enabled?: boolean = true;
+  completed?: boolean = false;
+  on_complete?: string[] = []
 }
 
-export class Action {
+export class TourAction {
   id: string;
   disabled: boolean;
   hidden: boolean;
+  data?: any;
+}
+
+export class TourActionEvent {
+  id: string;
+  data: any;
 }

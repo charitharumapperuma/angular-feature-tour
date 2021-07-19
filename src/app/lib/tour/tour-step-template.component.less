@@ -85,10 +85,18 @@
       }
     }
 
-    .popover-arrow.arrow {
-      &:before {
+    &.bs-popover {
+      &-top .popover-arrow.arrow:before {
         border-top-color: #6F3CE6;
+      }
+      &-bottom .popover-arrow.arrow:before {
         border-bottom-color: #6F3CE6;
+      }
+      &-right .popover-arrow.arrow:before {
+        border-right-color: #6F3CE6;
+      }
+      &-left .popover-arrow.arrow:before {
+        border-left-color: #6F3CE6;
       }
     }
   }
