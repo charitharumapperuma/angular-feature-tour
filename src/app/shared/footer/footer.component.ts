@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import {TourService} from '../../lib/tour/tour.service';
 
 @Component({
   selector: 'app-footer',
@@ -7,9 +8,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class FooterComponent implements OnInit {
 
-  constructor() { }
+  constructor(private tourService: TourService) { }
 
   ngOnInit() {
   }
 
+  public onRestartTour(key?: string) {
+    this.tourService.start(key);
+  }
 }

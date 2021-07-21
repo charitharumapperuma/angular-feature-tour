@@ -10,12 +10,17 @@ export const TOUR_CONFIG: Tour = {
       title: 'First Step Title',
       message: 'Page title',
       on_complete: [
-        'tour#home.get_started_1',
+        'tour#home.get_started',
         'home.get_started_event_custom_key'
       ]
     },
     {
-      id: 'home.get_started_1',
+      id: 'home.get_started',
+      enabled: true,
+      message: 'This is the first step of the demo tour',
+    },
+    {
+      id: 'header.get_started',
       enabled: true,
       message: 'This is the first step of the demo tour',
     }
