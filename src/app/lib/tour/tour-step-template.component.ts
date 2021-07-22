@@ -23,8 +23,6 @@ export class TourStepTemplateComponent implements OnInit, OnDestroy {
   @HostBinding('class.tour-step-area') true;
   @HostBinding('style.width.px') public width = 0;
   @HostBinding('style.height.px') public height = 0;
-  @HostBinding('style.top.px') public offsetVertical: number;
-  @HostBinding('style.left.px') public offsetHorizontal: number;
 
   private stepIdSubj: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   private windowEvents$: Observable<Event> = this.subscribeToWindowEvents();
@@ -84,8 +82,6 @@ export class TourStepTemplateComponent implements OnInit, OnDestroy {
       const boundingRect: DOMRect = this.targetElement.getBoundingClientRect() as DOMRect;
       this.width = boundingRect.width;
       this.height = boundingRect.height;
-      this.offsetVertical = boundingRect.top + document.scrollingElement.scrollTop;
-      this.offsetHorizontal = boundingRect.left + document.scrollingElement.scrollLeft;
 
       this.isReady = true;
     }

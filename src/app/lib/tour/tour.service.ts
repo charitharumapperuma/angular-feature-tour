@@ -20,6 +20,7 @@ export class TourService {
   private currentStepSubj: BehaviorSubject<TourStep> = new BehaviorSubject<TourStep>(null);
   private actionSubj: BehaviorSubject<TourActionEvent> = new BehaviorSubject<TourActionEvent>(null);
 
+  private activeAnchor: TourStepDirective;
   private stepsMap: Map<string, TourStep> = new Map<string, TourStep>();
   private stepsSequence: string[] = [];
 
@@ -36,13 +37,21 @@ export class TourService {
   constructor() {
     this.events$.subscribe(() => {
       if (!this.currentStepSubj.value) {
+        this.removeCurrentAnchor();
         return;
       }
       const anchor = this.anchorsSubj.value.get(this.currentStepSubj.value.id);
       if (!anchor) {
         return;
       }
-      setTimeout(() => anchor.show());
+      setTimeout(() => {
+        this.removeCurrentAnchor();
+        anchor.element.scrollIntoView({
+          behavior: 'smooth'
+        });
+        anchor.show();
+        this.activeAnchor = anchor;
+      });
     });
   }
 
@@ -146,5 +155,11 @@ export class TourService {
 
   private handleEnd(key: string, index: number, data: any) {
     console.error('Not implemented');
+  }
+
+  private removeCurrentAnchor(): void {
+    if (this.activeAnchor) {
+      this.activeAnchor.hide();
+    }
   }
 }

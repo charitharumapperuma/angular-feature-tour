@@ -1,5 +1,6 @@
 import {
-  ComponentFactoryResolver,
+  ComponentFactory,
+  ComponentFactoryResolver, ComponentRef,
   Directive,
   ElementRef,
   Input,
@@ -19,6 +20,9 @@ export class TourStepDirective implements OnInit, OnDestroy {
 
   public element: HTMLElement;
 
+  private tourStepComponentFactory: ComponentFactory<TourStepTemplateComponent>;
+  private tourStepTemplateComponentRef: ComponentRef<TourStepTemplateComponent>;
+
   constructor(
     private elRef: ElementRef,
     private vcRef: ViewContainerRef,
@@ -30,6 +34,7 @@ export class TourStepDirective implements OnInit, OnDestroy {
   ngOnInit() {
     this.tourService.register(this.tourStep, this);
     this.element = this.elRef.nativeElement;
+    this.tourStepComponentFactory = this.componentFactoryResolver.resolveComponentFactory(TourStepTemplateComponent);
   }
 
   ngOnDestroy() {
@@ -37,9 +42,14 @@ export class TourStepDirective implements OnInit, OnDestroy {
   }
 
   public show() {
-    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(TourStepTemplateComponent);
-    const componentRef = this.vcRef.createComponent<TourStepTemplateComponent>(componentFactory);
-    componentRef.instance.setStep(this.tourStep);
-    componentRef.instance.data = this.data;
+    this.tourStepTemplateComponentRef = this.vcRef.createComponent<TourStepTemplateComponent>(this.tourStepComponentFactory);
+    this.tourStepTemplateComponentRef.instance.setStep(this.tourStep);
+    this.tourStepTemplateComponentRef.instance.data = this.data;
+  }
+
+  public hide() {
+    const viewRef = this.tourStepTemplateComponentRef.hostView;
+    const index = this.vcRef.indexOf(viewRef);
+    this.vcRef.remove(index);
   }
 }
