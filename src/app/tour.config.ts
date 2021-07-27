@@ -14,15 +14,17 @@ export const TOUR_CONFIG: Tour = {
     },
     {
       id: 'home.get_started',
-      message: 'This is the first step of the demo tour',
+      persistable: true,
+      message: 'Get started button',
     },
     {
       id: 'header.get_started',
-      message: 'This is the first step of the demo tour',
+      disabled: false,
+      message: 'Get started button',
     },
     {
       id: 'home.title',
-      message: 'This is the first step of the demo tour',
+      message: 'First title of the page',
     }
   ]
 };

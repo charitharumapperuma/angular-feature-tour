@@ -1,6 +1,8 @@
 export class Tour {
   id: string;
-  isSequence: boolean;
+  isSequence?: boolean;
+  persistable?: string;
+  disabled?: boolean;
   steps: TourStep[];
 }
 
@@ -12,7 +14,7 @@ export class TourStep {
   disabled?: boolean;
   completed?: boolean;
   on_complete?: string[] = [];
-  persist?: boolean;
+  persistable?: boolean;
 }
 
 export class TourAction {

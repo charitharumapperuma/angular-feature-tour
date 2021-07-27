@@ -24,6 +24,7 @@ export class TourService {
   private stepsMap: Map<string, TourStep> = new Map<string, TourStep>();
   private stepsSequence: string[] = [];
   private persistenceFn: (id: string) => void;
+  private completenessFn: (id: string) => boolean;
 
   public tour$: Observable<Tour> = this.tourSubj.asObservable();
   public anchors$: Observable<Map<string, TourStepDirective>> = this.anchorsSubj.asObservable();
@@ -61,14 +62,29 @@ export class TourService {
    * clean up all the previous states of the tour state service
    * and setup tour based on passed configuration
    */
-  public initialize(tour: Tour, fn?: (id: string) => void) {
+  public initialize(tour: Tour, persistenceFn?: (id: string) => void, completenessFn?: (id: string) => boolean) {
+    this.persistenceFn = persistenceFn.bind(this);
+    this.completenessFn = completenessFn.bind(this);
+
+    // if tour is disabled or already completed
+    if (tour.disabled || this.completenessFn(tour.id)) {
+      return;
+    }
+
+    // set completeness of tour steps
+    tour.steps.forEach(step => step.completed = step.persistable && this.completenessFn(step.id));
+
+    // if all steps are completed, skip
+    if (tour.steps.every(s => s.completed || s.disabled)) {
+      return;
+    }
+
     this.clear();
     tour.steps.forEach((step, index) => {
       this.stepsMap.set(step.id, {index, ...step});
       this.stepsSequence.push(step.id);
     });
     this.tourSubj.next(Object.assign({}, tour));
-    this.persistenceFn = fn;
   }
 
   /**
@@ -205,7 +221,7 @@ export class TourService {
   private completeStep(id: string): void {
     const step: TourStep = this.stepsMap.get(id);
     step.completed = true;
-    if (this.persistenceFn && step.persist) {
+    if (this.persistenceFn && step.persistable) {
       this.persistenceFn(id);
     }
   }
