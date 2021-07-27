@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
-import {Tour, TourAction, TourActionEvent, TourStep} from './tour.model';
+import {Tour, TourActionEvent, TourStep} from './tour.model';
 import {TourStepDirective} from './tour-step.directive';
-import {BehaviorSubject, combineLatest, fromEvent, Observable} from 'rxjs';
+import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +23,7 @@ export class TourService {
   private activeAnchor: TourStepDirective;
   private stepsMap: Map<string, TourStep> = new Map<string, TourStep>();
   private stepsSequence: string[] = [];
+  private persistenceFn: (id: string) => void;
 
   public tour$: Observable<Tour> = this.tourSubj.asObservable();
   public anchors$: Observable<Map<string, TourStepDirective>> = this.anchorsSubj.asObservable();
@@ -55,37 +56,56 @@ export class TourService {
     });
   }
 
-  public initialize(tour: Tour) {
-    this.stepsMap.clear();
-    this.stepsSequence = [];
+  /**
+   * Initialize the tour
+   * clean up all the previous states of the tour state service
+   * and setup tour based on passed configuration
+   */
+  public initialize(tour: Tour, fn?: (id: string) => void) {
+    this.clear();
     tour.steps.forEach((step, index) => {
       this.stepsMap.set(step.id, {index, ...step});
       this.stepsSequence.push(step.id);
     });
     this.tourSubj.next(Object.assign({}, tour));
+    this.persistenceFn = fn;
   }
 
-  public register(step: string, directive: TourStepDirective) {
-    if (this.anchorsSubj && this.anchorsSubj.value && this.anchorsSubj.value.get(step)) {
+  /**
+   * Register a step and its associated TourStepDirective
+   * (automatically gets called from the TourStepDirective OnInit hook)
+   */
+  public register(id: string, directive: TourStepDirective) {
+    if (this.anchorsSubj && this.anchorsSubj.value && this.anchorsSubj.value.get(id)) {
       return;
     }
-    this.anchorsSubj.next(this.anchorsSubj.value.set(step, directive));
+    this.anchorsSubj.next(this.anchorsSubj.value.set(id, directive));
   }
 
-  public unregister(step: string) {
-    if (this.anchorsSubj && this.anchorsSubj.value && this.anchorsSubj.value.has(step)) {
-      const isDeleted = this.anchorsSubj.value.delete(step);
+  /**
+   * Unregister a step and its associated setup
+   * (automatically gets called from the TourStepDirective OnDestroy hook)
+   */
+  public unregister(id: string) {
+    if (this.anchorsSubj && this.anchorsSubj.value && this.anchorsSubj.value.has(id)) {
+      const isDeleted = this.anchorsSubj.value.delete(id);
       if (isDeleted) {
         this.anchorsSubj.next(this.anchorsSubj.value);
       }
     }
   }
 
-  public start(stepId?: string) {
+  /**
+   * Start a tour
+   * By default starts from the first step of the currently active tour
+   * If a specific step id has been passed, tour will start from the given step
+   * If there is no step in the current tour with the given id, skip
+   */
+  public start(id?: string) {
     let index = 0;
 
-    if (stepId) {
-      const step = this.stepsMap.get(stepId);
+    if (id) {
+      const step = this.stepsMap.get(id);
       index = step ? step.index : -1;
     }
 
@@ -97,6 +117,10 @@ export class TourService {
     this.setStep(this.stepsSequence[index]);
   }
 
+  /**
+   * Trigger a event
+   * Events are triggered from the buttons within the tooltip
+   */
   public trigger(event: string, step: TourStep, data: any) {
     this.stepStatusHandlers[event](step.id, step.index, data);
     this.triggerActionEvent(this.stepsSequence[step.index] + '.' + event, data);
@@ -104,6 +128,70 @@ export class TourService {
 
   public getStep(id): TourStep {
     return this.stepsMap.get(id);
+  }
+
+  private handleCheck(id: string, index: number, data: any) {
+    // handled externally
+  }
+
+  private handleGotIt(id: string, index: number, data: any) {
+    this.completeStep(id);
+    const onCompleteActions = this.stepsMap.get(id).on_complete;
+    if (onCompleteActions && onCompleteActions.length > 0) {
+      onCompleteActions.forEach((action) => this.triggerActionEvent(action, data));
+    }
+    this.setStep(this.getNextStep(index));
+  }
+
+  private handleNext(id: string, index: number, data: any) {
+    this.setStep(this.getNextStep(index));
+  }
+
+  private handlePrev(id: string, index: number, data: any) {
+    this.setStep(this.getPrevStep(index));
+  }
+
+  private handleEnd(id: string, index: number, data: any) {
+    this.completeStep(id);
+  }
+
+  private clear(): void {
+    this.stepsMap.clear();
+    this.stepsSequence = [];
+  }
+
+  private getNextStep(index: number): string {
+    const next = index + 1;
+    if (next === this.stepsSequence.length) {
+      return null;
+    }
+    const id = this.stepsSequence[next];
+    const step = this.stepsMap.get(id);
+    if (!step) {
+      return null;
+    }
+    if (step.completed || step.disabled) {
+      return this.getPrevStep(next);
+    } else {
+      return id;
+    }
+  }
+
+  private getPrevStep(index: number): string {
+    const prev = index + 1;
+    if (prev === -1) {
+      return null;
+    }
+    const id = this.stepsSequence[prev];
+    const step = this.stepsMap.get(id);
+    if (!step) {
+      return null;
+    }
+    if (step.completed || step.disabled) {
+      return this.getPrevStep(prev);
+    } else {
+      return id;
+    }
   }
 
   private setStep(id: string) {
@@ -115,46 +203,15 @@ export class TourService {
   }
 
   private completeStep(id: string): void {
-    const step = this.stepsMap.get(id);
+    const step: TourStep = this.stepsMap.get(id);
     step.completed = true;
+    if (this.persistenceFn && step.persist) {
+      this.persistenceFn(id);
+    }
   }
 
   private triggerActionEvent(id: string, data: any): void {
     this.actionSubj.next({id, data});
-  }
-
-  private handleOnCompleteAction(event: string, origin: string, data: any): void {
-    if (event.startsWith('tour#')) {
-      this.setStep(event.split('#', 2)[1]);
-    } else {
-      this.triggerActionEvent(event, data);
-    }
-  }
-
-  private handleCheck(key: string, index: number, data: any) {
-    console.error('Not implemented');
-  }
-
-  private handleGotIt(id: string, index: number, data: any) {
-    this.completeStep(id);
-    const onCompleteActions = this.stepsMap.get(id).on_complete;
-    if (onCompleteActions && onCompleteActions.length > 0) {
-      onCompleteActions.forEach((action) => this.handleOnCompleteAction(action, id, data));
-    } else {
-      this.dismissStep();
-    }
-  }
-
-  private handleNext(key: string, index: number, data: any) {
-    this.setStep(this.stepsSequence[index + 1]);
-  }
-
-  private handlePrev(key: string, index: number, data: any) {
-    this.setStep(this.stepsSequence[index - 1]);
-  }
-
-  private handleEnd(key: string, index: number, data: any) {
-    console.error('Not implemented');
   }
 
   private removeCurrentAnchor(): void {

@@ -9,9 +9,10 @@ export class TourStep {
   index?: number;
   title?: string;
   message?: string;
-  enabled?: boolean = true;
-  completed?: boolean = false;
-  on_complete?: string[] = []
+  disabled?: boolean;
+  completed?: boolean;
+  on_complete?: string[] = [];
+  persist?: boolean;
 }
 
 export class TourAction {

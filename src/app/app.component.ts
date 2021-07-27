@@ -2,6 +2,7 @@ import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {TourService} from './lib/tour/tour.service';
 import {TOUR_CONFIG} from './tour.config';
+import {PersistenceService} from './persistence.service';
 
 @Component({
   selector: 'app-root',
@@ -9,11 +10,11 @@ import {TOUR_CONFIG} from './tour.config';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, AfterViewInit {
-  constructor(private router: Router, private tourService: TourService) {
+  constructor(private router: Router, private tourService: TourService, private persistenceService: PersistenceService) {
   }
 
   ngOnInit() {
-    this.tourService.initialize(TOUR_CONFIG);
+    this.tourService.initialize(TOUR_CONFIG, this.persistenceService.save);
     this.tourService.action$.subscribe((action) => {
       console.log(action);
     });
