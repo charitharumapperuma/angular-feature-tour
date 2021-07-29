@@ -14,7 +14,7 @@ export const TOUR_CONFIG: Tour = {
     },
     {
       id: 'home.get_started',
-      persistable: true,
+      persist: true,
       message: 'Get started button',
     },
     {

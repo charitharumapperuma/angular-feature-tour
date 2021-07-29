@@ -1,9 +1,10 @@
 export class Tour {
   id: string;
   isSequence?: boolean;
-  persistable?: string;
+  persist?: string;
   disabled?: boolean;
   steps: TourStep[];
+  completeness_test_fn?: () => boolean;
 }
 
 export class TourStep {
@@ -13,8 +14,9 @@ export class TourStep {
   message?: string;
   disabled?: boolean;
   completed?: boolean;
+  persist?: boolean;
   on_complete?: string[] = [];
-  persistable?: boolean;
+  completeness_test_fn?: () => boolean;
 }
 
 export class TourAction {

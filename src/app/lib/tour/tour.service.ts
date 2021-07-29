@@ -7,34 +7,6 @@ import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
   providedIn: 'root'
 })
 export class TourService {
-  private readonly stepStatusHandlers = {
-    next: this.handleNext.bind(this),
-    prev: this.handlePrev.bind(this),
-    end: this.handleEnd.bind(this),
-    check: this.handleCheck.bind(this),
-    got_it: this.handleGotIt.bind(this)
-  };
-
-  private tourSubj: BehaviorSubject<Tour> = new BehaviorSubject<Tour>(null);
-  private anchorsSubj: BehaviorSubject<Map<string, TourStepDirective>> = new BehaviorSubject(new Map<string, TourStepDirective>());
-  private currentStepSubj: BehaviorSubject<TourStep> = new BehaviorSubject<TourStep>(null);
-  private actionSubj: BehaviorSubject<TourActionEvent> = new BehaviorSubject<TourActionEvent>(null);
-
-  private activeAnchor: TourStepDirective;
-  private stepsMap: Map<string, TourStep> = new Map<string, TourStep>();
-  private stepsSequence: string[] = [];
-  private persistenceFn: (id: string) => void;
-  private completenessFn: (id: string) => boolean;
-
-  public tour$: Observable<Tour> = this.tourSubj.asObservable();
-  public anchors$: Observable<Map<string, TourStepDirective>> = this.anchorsSubj.asObservable();
-  public currentStep$: Observable<TourStep> = this.currentStepSubj.asObservable();
-  public action$: Observable<TourActionEvent> = this.actionSubj.asObservable();
-  public events$: Observable<[Tour, Map<string, TourStepDirective>, TourStep]> = combineLatest([
-    this.tour$,
-    this.anchors$,
-    this.currentStep$
-  ]);
 
   constructor() {
     this.events$.subscribe(() => {
@@ -56,26 +28,50 @@ export class TourService {
       });
     });
   }
+  private readonly stepStatusHandlers = {
+    next: this.handleNext.bind(this),
+    prev: this.handlePrev.bind(this),
+    end: this.handleEnd.bind(this),
+    check: this.handleCheck.bind(this),
+    got_it: this.handleGotIt.bind(this)
+  };
+
+  private tourSubj: BehaviorSubject<Tour> = new BehaviorSubject<Tour>(null);
+  private anchorsSubj: BehaviorSubject<Map<string, TourStepDirective>> = new BehaviorSubject(new Map<string, TourStepDirective>());
+  private currentStepSubj: BehaviorSubject<TourStep> = new BehaviorSubject<TourStep>(null);
+  private actionSubj: BehaviorSubject<TourActionEvent> = new BehaviorSubject<TourActionEvent>(null);
+  private persistSubj: BehaviorSubject<string> = new BehaviorSubject<string>(null);
+
+  private activeAnchor: TourStepDirective;
+  private stepsMap: Map<string, TourStep> = new Map<string, TourStep>();
+  private stepsSequence: string[] = [];
+
+  public tour$: Observable<Tour> = this.tourSubj.asObservable();
+  public anchors$: Observable<Map<string, TourStepDirective>> = this.anchorsSubj.asObservable();
+  public currentStep$: Observable<TourStep> = this.currentStepSubj.asObservable();
+  public action$: Observable<TourActionEvent> = this.actionSubj.asObservable();
+  public persist$: Observable<string> = this.persistSubj.asObservable();
+  public events$: Observable<[Tour, Map<string, TourStepDirective>, TourStep, TourActionEvent, string]> = combineLatest([
+    this.tour$,
+    this.anchors$,
+    this.currentStep$,
+    this.action$,
+    this.persist$
+  ]);
+
+  public static getPersistenceId(tour: Tour, id?: string): string {
+    return 'tour.' + tour.id + '.' + (id ? id : '*');
+  }
 
   /**
    * Initialize the tour
    * clean up all the previous states of the tour state service
    * and setup tour based on passed configuration
    */
-  public initialize(tour: Tour, persistenceFn?: (id: string) => void, completenessFn?: (id: string) => boolean) {
-    this.persistenceFn = persistenceFn.bind(this);
-    this.completenessFn = completenessFn.bind(this);
-
+  public initialize(tour: Tour) {
     // if tour is disabled or already completed
-    if (tour.disabled || this.completenessFn(tour.id)) {
-      return;
-    }
-
-    // set completeness of tour steps
-    tour.steps.forEach(step => step.completed = step.persistable && this.completenessFn(step.id));
-
-    // if all steps are completed, skip
-    if (tour.steps.every(s => s.completed || s.disabled)) {
+    const isTourComplete = tour.completeness_test_fn();
+    if (tour.disabled || isTourComplete) {
       return;
     }
 
@@ -118,19 +114,12 @@ export class TourService {
    * If there is no step in the current tour with the given id, skip
    */
   public start(id?: string) {
-    let index = 0;
-
-    if (id) {
-      const step = this.stepsMap.get(id);
-      index = step ? step.index : -1;
-    }
-
-    if (index === -1) {
+    const next = id ? id : this.getNextStep(-1);
+    if (!this.stepsMap.has(next)) {
       console.log('[ERR] Step not found...');
       return;
     }
-
-    this.setStep(this.stepsSequence[index]);
+    this.setStep(next);
   }
 
   /**
@@ -186,8 +175,8 @@ export class TourService {
     if (!step) {
       return null;
     }
-    if (step.completed || step.disabled) {
-      return this.getPrevStep(next);
+    if (step.disabled || step.completed || step.completeness_test_fn()) {
+      return this.getNextStep(next);
     } else {
       return id;
     }
@@ -203,7 +192,7 @@ export class TourService {
     if (!step) {
       return null;
     }
-    if (step.completed || step.disabled) {
+    if (step.disabled || step.completed || step.completeness_test_fn()) {
       return this.getPrevStep(prev);
     } else {
       return id;
@@ -221,8 +210,8 @@ export class TourService {
   private completeStep(id: string): void {
     const step: TourStep = this.stepsMap.get(id);
     step.completed = true;
-    if (this.persistenceFn && step.persistable) {
-      this.persistenceFn(id);
+    if (step.persist) {
+      this.persistSubj.next(TourService.getPersistenceId(this.tourSubj.value, id));
     }
   }
 
